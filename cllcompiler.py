@@ -106,6 +106,8 @@ def compile_expr(expr,varhash):
             return compile_expr(expr[2],varhash) + compile_expr(expr[1][1],varhash) + ['EXTRO']
         elif expr[1] == 'contract.storage':
             return compile_expr(expr[2],varhash) + ['SLOAD']
+        elif expr[1] == 'tx.data':
+            return compile_expr(expr[2],varhash) + ['TXDATA']
         else:
             return compile_left_expr(expr[1],varhash) + compile_expr(expr[2],varhash) + ['ADD','MLOAD']
     elif expr[0] == 'fun' and expr[1] == 'array':
