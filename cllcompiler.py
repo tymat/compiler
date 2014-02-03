@@ -69,7 +69,7 @@ def compile_left_expr(expr,varhash):
             varhash[expr] = len(varhash)
             return ['PUSH',varhash[expr]]
     elif typ == 'storage':
-        return compile_expr(expr[1],varhash)
+        return compile_expr(expr[2],varhash)
     elif typ == 'access':
         if get_left_expr_type(expr[1]) == 'storage':
             return compile_left_expr(expr[1],varhash) + 'SLOAD' + compile_expr(expr[2],varhash)
