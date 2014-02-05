@@ -97,7 +97,7 @@ def compile_expr(expr,varhash):
         g = compile_expr(expr[2],varhash)
         return f + g + [optable[expr[0]]]
     elif expr[0] == 'fun' and expr[1] in funtable:
-        if len(expr) != funtable[expr[0]][1] + 1:
+        if len(expr) != funtable[expr[1]][1] + 1:
             raise Exception("Wrong number of arguments: "+str(expr)) 
         f = sum([compile_expr(e,varhash) for e in expr[2:]],[])
         return f + [funtable[expr[1]][0]]
@@ -199,7 +199,7 @@ def assemble(c):
 def compile(source):
     lines = source.split('\n')
     p = parse_lines(lines)
-    print p
+    #print p
     return assemble(compile_stmt(p))
 
 if len(sys.argv) >= 2:
