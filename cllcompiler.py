@@ -1,4 +1,4 @@
-import re, sys
+import re, sys, os
 from cllparser import *
 
 optable = { 
@@ -22,7 +22,7 @@ funtable = {
     'sha3': ['SHA3', 3],
     'ripemd160': ['RIPEMD160', 3],
     'ecsign': ['ECSIGN', 2],
-    'ecrecover': ['ECRECOVER', 3],
+    'ecrecover': ['ECRECOVER', 4],
     'ecvalid': ['ECVALID', 2],
     'ecadd': ['ECADD', 4],
     'ecmul': ['ECMUL', 3],
@@ -97,7 +97,7 @@ def compile_expr(expr,varhash):
         g = compile_expr(expr[2],varhash)
         return f + g + [optable[expr[0]]]
     elif expr[0] == 'fun' and expr[1] in funtable:
-        if len(expr) != funtable[expr[1]][1] + 1:
+        if len(expr) != funtable[expr[1]][1] + 2:
             raise Exception("Wrong number of arguments: "+str(expr)) 
         f = sum([compile_expr(e,varhash) for e in expr[2:]],[])
         return f + [funtable[expr[1]][0]]
@@ -157,7 +157,7 @@ def compile_stmt(stmt,varhash={},lc=[0]):
         exprstates = [get_left_expr_type(e) for e in stmt[1][1:]]
         o = rexp
         for e in stmt[1][1:]:
-            o += compile_left_expr(stmt[1])
+            o += compile_left_expr(stmt[1],varhash)
             o += [ 'SSTORE' if get_left_expr_type(e) == 'storage' else 'MSTORE' ]
         return o
     elif stmt[0] == 'seq':
@@ -203,8 +203,8 @@ def compile(source):
     return assemble(compile_stmt(p))
 
 if len(sys.argv) >= 2:
-    try:
+    if os.path.exists(sys.argv[1]):
         open(sys.argv[1]).read()
         print ' '.join([str(k) for k in compile(open(sys.argv[1]).read())])
-    except:
+    else:
         print ' '.join([str(k) for k in compile(sys.argv[1])])
