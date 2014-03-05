@@ -139,15 +139,15 @@ def compile_stmt(stmt,varhash={},lc=[0]):
         h = compile_stmt(stmt[3],varhash,lc) if len(stmt) > 3 else None
         label, ref = 'LABEL_'+str(lc[0]), 'REF_'+str(lc[0])
         lc[0] += 1
-        if h: return f + [ 'NOT', ref, 'JMPI' ] + g + [ ref, 'JMP' ] + h + [ label ]
-        else: return f + [ 'NOT', ref, 'JMPI' ] + g + [ label ]
+        if h: return f + [ 'NOT', ref, 'SWAP', 'JMPI' ] + g + [ ref, 'JMP' ] + h + [ label ]
+        else: return f + [ 'NOT', ref, 'SWAP', 'JMPI' ] + g + [ label ]
     elif stmt[0] == 'while':
         f = compile_expr(stmt[1],varhash)
         g = compile_stmt(stmt[2],varhash,lc)
         beglab, begref = 'LABEL_'+str(lc[0]), 'REF_'+str(lc[0])
         endlab, endref = 'LABEL_'+str(lc[0]+1), 'REF_'+str(lc[0]+1)
         lc[0] += 2
-        return [ beglab ] + f + [ 'NOT', endref, 'JMPI' ] + g + [ begref, 'JMP', endlab ]
+        return [ beglab ] + f + [ 'NOT', endref, 'SWAP', 'JMPI' ] + g + [ begref, 'JMP', endlab ]
     elif stmt[0] == 'set':
         lexp = compile_left_expr(stmt[1],varhash)
         rexp = compile_expr(stmt[2],varhash)
