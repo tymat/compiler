@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import re, sys, os
 from cllparser import *
 
@@ -181,13 +182,15 @@ def compile_stmt(stmt,varhash={},lc=[0]):
 def assemble(c):
     iq = [x for x in c]
     mq = []
+    pos = 0
     labelmap = {}
     while len(iq):
         front = iq.pop(0)
         if isinstance(front,str) and front[:6] == 'LABEL_':
-            labelmap[front[6:]] = len(mq)
+            labelmap[front[6:]] = pos
         else:
             mq.append(front)
+            pos += 2 if isinstance(front,str) and front[:4] == 'REF_' else 1
     oq = []
     for m in mq:
         if isinstance(m,str) and m[:4] == 'REF_':

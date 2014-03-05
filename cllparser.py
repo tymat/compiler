@@ -193,7 +193,7 @@ def shunting_yard(tokens):
         return [ 'multi' ] + oq
 
 def parse_line(ln):
-    tokens = tokenize(ln)
+    tokens = tokenize(ln.strip())
     if tokens[0] == 'if' or tokens[0] == 'while':
         return [ tokens[0], shunting_yard(tokens[1:]) ]
     elif len(tokens) >= 2 and tokens[0] == 'else' and tokens[1] == 'if':
