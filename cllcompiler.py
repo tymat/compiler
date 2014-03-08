@@ -73,7 +73,7 @@ def compile_left_expr(expr,varhash):
         return compile_expr(expr[2],varhash)
     elif typ == 'access':
         if get_left_expr_type(expr[1]) == 'storage':
-            return compile_left_expr(expr[1],varhash) + 'SLOAD' + compile_expr(expr[2],varhash)
+            return compile_left_expr(expr[1],varhash) + ['SLOAD'] + compile_expr(expr[2],varhash)
         else:
             return compile_left_expr(expr[1],varhash) + compile_expr(expr[2],varhash) + ['ADD']
     else:
@@ -105,10 +105,8 @@ def compile_expr(expr,varhash):
     elif expr[0] == 'access':
         if expr[1][0] == 'block.contract_storage':
             return compile_expr(expr[2],varhash) + compile_expr(expr[1][1],varhash) + ['EXTRO']
-        elif expr[1] == 'contract.storage':
-            return compile_expr(expr[2],varhash) + ['SLOAD']
-        elif expr[1] == 'tx.data':
-            return compile_expr(expr[2],varhash) + ['TXDATA']
+        elif expr[1] in pseudoarrays:
+            return compile_exor(expr[2],varhash) + pseudoarrays[expr[1]]
         else:
             return compile_left_expr(expr[1],varhash) + compile_expr(expr[2],varhash) + ['ADD','MLOAD']
     elif expr[0] == 'fun' and expr[1] == 'array':
@@ -125,7 +123,7 @@ def compile_expr(expr,varhash):
     elif expr[0] in ['and', '&&']: 
         return compile_expr(['!', [ '+', ['!', expr[1] ], ['!', expr[2] ] ] ],varhash)
     elif expr[0] == 'multi':
-        return sum([compile_expr(e,varhash) for e in expr],[])
+        return sum([compile_expr(e,varhash) for e in expr[1:]],[])
     elif expr == 'tx.datan':
         return ['DATAN']
     else:
@@ -158,7 +156,7 @@ def compile_stmt(stmt,varhash={},lc=[0]):
         exprstates = [get_left_expr_type(e) for e in stmt[1][1:]]
         o = rexp
         for e in stmt[1][1:]:
-            o += compile_left_expr(stmt[1],varhash)
+            o += compile_left_expr(e,varhash)
             o += [ 'SSTORE' if get_left_expr_type(e) == 'storage' else 'MSTORE' ]
         return o
     elif stmt[0] == 'seq':
